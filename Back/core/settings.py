@@ -45,7 +45,8 @@ DJANGO_APPS = [
 ]
 
 PROJECT_APPS = [
-    'product'
+    'product',
+    'account',
 ]
 
 THIRD_PARTY_APPS = [
@@ -54,7 +55,7 @@ THIRD_PARTY_APPS = [
     'rest_framework_simplejwt.token_blacklist',
 ]
 
-INSTALLED_APPS = DJANGO_APPS
+INSTALLED_APPS = DJANGO_APPS + PROJECT_APPS + THIRD_PARTY_APPS
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -185,4 +186,6 @@ SIMPLE_JWT = {
     'SLIDING_TOKEN_LIFETIME': timedelta(minutes=5),
     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
 }
+
+AUTH_USER_MODEL = 'account.User'
 
