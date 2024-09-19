@@ -17,6 +17,8 @@ class ProductListPostView(generics.GenericAPIView, mixins.ListModelMixin, mixins
     def post(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)
 
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
 
 class ProductRetriveDeleteUpdateView(generics.GenericAPIView, mixins.RetrieveModelMixin, mixins.UpdateModelMixin , mixins.DestroyModelMixin):
     queryset = Product.objects.all()
@@ -45,6 +47,8 @@ class CategoryListPostView(generics.GenericAPIView, mixins.ListModelMixin, mixin
     def post(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)
 
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
 
 class CategoryRetriveDeleteUpdateView(generics.GenericAPIView, mixins.RetrieveModelMixin, mixins.UpdateModelMixin , mixins.DestroyModelMixin):
     queryset = Product.objects.all()
