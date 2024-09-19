@@ -6,7 +6,7 @@ class Category(models.Model):
     name = models.CharField(max_length=100, null=False, unique=True)
     description = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    update_at = models.DateTimeField(auto_now=True)
+    updated_at = models.DateTimeField(auto_now=True)
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='category_posts')
 
     def __str__(self) -> str:

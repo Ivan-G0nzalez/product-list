@@ -1,14 +1,15 @@
-from rest_framework import viewsets, generics, mixins, status
-from django.shortcuts import render
+from rest_framework import generics, mixins
+from rest_framework.permissions import IsAuthenticated
 from .serializers import *
 from .models import *
-from paginator import CustomPagination
+from .paginator import CustomPagination
 
 # Create your views here.
-class ProductListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.CreateModelMixin):
+class ProductListPostView(generics.GenericAPIView, mixins.ListModelMixin, mixins.CreateModelMixin):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     pagination_class = CustomPagination
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
@@ -18,7 +19,9 @@ class ProductListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Cre
 
 
 class ProductRetriveDeleteUpdateView(generics.GenericAPIView, mixins.RetrieveModelMixin, mixins.UpdateModelMixin , mixins.DestroyModelMixin):
+    queryset = Product.objects.all()
     serializer_class = ProductSerializer
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
         return self.retrieve(request, *args, **kwargs)	
@@ -30,10 +33,11 @@ class ProductRetriveDeleteUpdateView(generics.GenericAPIView, mixins.RetrieveMod
         return self.destroy(request, *args, **kwargs)
     
 
-class CategoryListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.CreateModelMixin):
+class CategoryListPostView(generics.GenericAPIView, mixins.ListModelMixin, mixins.CreateModelMixin):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     pagination_class = CustomPagination
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
@@ -43,7 +47,9 @@ class CategoryListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Cr
 
 
 class CategoryRetriveDeleteUpdateView(generics.GenericAPIView, mixins.RetrieveModelMixin, mixins.UpdateModelMixin , mixins.DestroyModelMixin):
+    queryset = Product.objects.all()
     serializer_class = CategorySerializer
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
         return self.retrieve(request, *args, **kwargs)	
