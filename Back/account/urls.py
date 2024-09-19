@@ -7,7 +7,7 @@ from . import views
 urlpatterns = [
     path('token/', views.MyTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('test/', views.TestAuthenticationToken.as_view(), name='test_authentication_token'),
+    path('test/', views.TestEndPoint.as_view(), name='test_authentication_token'),
     path('register/', views.RegisterView.as_view(), name='register_user'),
 
     # Reset Password

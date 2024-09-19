@@ -11,6 +11,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from rest_framework.views import APIView
+from rest_framework.decorators import api_view, permission_classes
 
 # Create your views here.
 class MyTokenObtainPairView(TokenObtainPairView):
@@ -32,33 +33,31 @@ class MyTokenObtainPairView(TokenObtainPairView):
 
         return Response(serializer.validated_data, status=status.HTTP_200_OK)
     
-class TestAuthenticationToken(generics.GenericAPIView):
+class TestEndPoint(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
-        data =  f"Congratulation {request.user}, your API just responded to GET request"
+        data = f"Congratulation {request.user}, your API just responded to GET request"
         return Response({'response': data}, status=status.HTTP_200_OK)
-    
+
     def post(self, request, *args, **kwargs):
         user = request.user
-        profile = Profile.objects.get(user=user)
-
-        full_name = profile.full_name
-        avatar_url = profile.avatar
+        try:
+            profile = Profile.objects.get(user=user)
+        except Profile.DoesNotExist:
+            return Response({'error': 'Profile not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+        full_name = profile.full_name if profile.full_name else ""
+        avatar_url = profile.avatar.url if profile.avatar else None
 
         data = {
             'id': user.id,
-            'email': user.email,
             'username': user.username,
+            'email': user.email,
             'full_name': full_name,
             'avatar': avatar_url,
         }
-
-        serializer = UserSerializer(data=data)
-        if serializer.is_valid():
-            return Response({'data': serializer.data}, status=status.HTTP_200_OK)
-        return Response({'error': 'Invalid data'}, status=status.HTTP_400_BAD_REQUEST)
-    
+        return Response({'data': data}, status=status.HTTP_200_OK)
 
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
