@@ -106,18 +106,3 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         token['email'] = user.email
 
         return token
-
-    def validate(self, attrs):
-        try:
-            # Intentamos obtener el usuario usando 'username'
-            user = User.objects.get(username=attrs['username'])
-        except User.DoesNotExist:
-            # Usuario no encontrado, devolver 404 con el mismo mensaje
-            raise NotFound("No active account found with the given credentials")
-
-        # Validar la contraseña
-        if not user.check_password(attrs['password']):
-            # Contraseña incorrecta, devolver 401 con el mismo mensaje
-            raise AuthenticationFailed("No active account found with the given credentials", code="authentication_failed")
-
-        return super().validate(attrs)
