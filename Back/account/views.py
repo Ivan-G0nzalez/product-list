@@ -1,11 +1,16 @@
+import os
+
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework import status
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from .models import *
 from .serializers import *
 from rest_framework import generics, mixins, status
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from django.contrib.auth.tokens import default_token_generator
+from django.core.mail import send_mail
+from rest_framework.views import APIView
 
 # Create your views here.
 class MyTokenObtainPairView(TokenObtainPairView):
@@ -59,3 +64,36 @@ class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     permission_classes = ([AllowAny])
     serializer_class = RegisterSerializer
+
+
+class RequestPasswordResetView(APIView):
+    def post(self, request):
+        email = request.data.get('email')
+        user = get_object_or_404(User, email=email)
+        token = default_token_generator.make_token(user)
+        reset_link = f"http://localhost:8081/auth/reset-password?token={token}&email={email}"
+        email_sender = os.environ.get('EMAIL_HOST_USER')
+        
+        send_mail(
+            'Reset Your Password',
+            f'Please click the following link to reset your password: {reset_link}',
+            email_sender,
+            [email],
+            fail_silently=False,
+        )
+        return Response({'message': 'Password reset link has been sent to your email.'}, status=status.HTTP_200_OK)
+
+
+class ResetPasswordView(APIView):
+    def post(self, request):
+        email = request.data.get('email')
+        token = request.data.get('token')
+        new_password = request.data.get('password')
+        user = get_object_or_404(User, email=email)
+
+        if default_token_generator.check_token(user, token):
+            user.set_password(new_password)
+            user.save()
+            return Response({'message': 'Your password has been reset successfully.'}, status=status.HTTP_200_OK)
+        else:
+            return Response({'error': 'Invalid token.'}, status=status.HTTP_400_BAD_REQUEST)
