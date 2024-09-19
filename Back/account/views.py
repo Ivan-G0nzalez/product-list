@@ -62,7 +62,7 @@ class TestEndPoint(APIView):
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     permission_classes = ([AllowAny])
-    serializer_class = RegisterSerializer
+    serializer_class = RegiserSerializer
 
 
 class RequestPasswordResetView(APIView):

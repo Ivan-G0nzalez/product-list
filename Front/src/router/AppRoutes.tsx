@@ -3,7 +3,7 @@ import { Routes, Route, BrowserRouter, Navigate } from 'react-router-dom';
 import { ErrorsPage } from '../ui/pages/error/ErrorsPages';
 import { useAuth } from '../adapters/auth/Auth';
 import { App } from '../App';
-import { Logout } from '../ui/auth/Logout';
+import { Logout } from '../ui/components/Logout';
 import { AuthPage } from '../ui/auth/AuthPage';
 
 const { BASE_URL } = import.meta.env;

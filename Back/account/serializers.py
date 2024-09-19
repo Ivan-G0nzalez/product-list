@@ -1,7 +1,6 @@
 
 from django.contrib.auth.password_validation import validate_password
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from rest_framework.exceptions import AuthenticationFailed, NotFound
 from rest_framework import serializers
 from django.utils import timezone
 
@@ -22,14 +21,14 @@ class ProfileSerializer(serializers.ModelSerializer):
         model = Profile
         fields = '__all__'
 
-class CreateUserSerializer(serializers.ModelSerializer):
+class RegiserSerializer(serializers.ModelSerializer):
     password2 = serializers.CharField(write_only=True, required=True)
     full_name = serializers.CharField(write_only=True, required=True)
     avatar = serializers.ImageField(source='profile.avatar', required=False)
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'password', 'password2', 'groups', 'full_name', 'avatar']
+        fields = ['username', 'email', 'password', 'password2', 'full_name', 'avatar']
         extra_kwargs = {
             'password': {'write_only': True, 'required': True, 'validators': [validate_password]},
         }
@@ -59,35 +58,6 @@ class CreateUserSerializer(serializers.ModelSerializer):
         user.profile.save()
         return user
     
-
-class RegisterSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(
-        write_only=True, required=True, validators=[validate_password]
-    )
-    password2 = serializers.CharField(
-        write_only=True, required=True
-    )
-    class Meta:
-        model = User
-        fields = ['email', 'username', 'password', 'password2']
-
-    def validate(self, attrs):
-        if attrs['password'] != attrs['password2']:
-            raise serializers.ValidationError(
-                {'password': 'password does not match'}
-            )
-        return attrs
-    
-    def create(self, validate_data):
-        user = User.objects.create(
-            username=validate_data['username'],
-            email=validate_data['email']
-            
-        )
-        user.set_password(validate_data['password'])
-        user.save()
-
-        return user
 
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):

@@ -21,6 +21,14 @@ export interface UserModel {
   password: string;
   email: string;
   full_name: string;
-  auth?: AuthModel;
-  avatar: string;
+  avatar?: string;
+}
+
+export interface RegisterUserModel {
+  username: string;
+  password: string;
+  password2: string;
+  email: string;
+  full_name: string;
+  avatar?: string;
 }
