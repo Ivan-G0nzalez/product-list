@@ -1,5 +1,51 @@
 version: '3.8'
 services:
+  react-web:
+    build:
+      context: ./Front
+      dockerfile: Dockerfile
+    container_name: my_front_app
+    env_file:
+      - .env
+    ports:
+      - '3000:80'
+    networks:
+      - app-query-net
+    depends_on:
+      - backend-python-pro
+
+  backend-python-pro:
+    build:
+      context: ./Back
+      dockerfile: Dockerfile
+    container_name: django_app
+    env_file:
+      - .env
+    command: sh -c "python manage.py makemigrations && python manage.py migrate && python manage.py collectstatic --noinput && exec gunicorn core.wsgi:application --bind 0.0.0.0:8001 --workers 2 --threads 2 --timeout 1200"
+    depends_on:
+      - db
+    ports:
+      - '8001:8001'
+    networks:
+      - app-query-net
+    volumes:
+      - static_vol:/app/media/
+      - static_admin_vol:/app/static/
+
+  nginx-backend:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    ports:
+      - 8000:8000
+    depends_on:
+      - backend-python-pro
+    volumes:
+      - static_vol:/app/media/
+      - static_admin_vol:/app/static/
+    networks:
+      - app-query-net
+
   db:
     image: postgres:15-alpine
     container_name: product_db
@@ -29,3 +75,5 @@ networks:
 
 volumes:
   postgres_data:
+  static_vol:
+  static_admin_vol:

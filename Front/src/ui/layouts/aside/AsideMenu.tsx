@@ -12,7 +12,7 @@ const AsideMenu = () => {
       id: 1,
       label: 'Products',
       icon: 'mediafiles/misc/Chart.png',
-      to: '/products',
+      to: '/apps/products-management/products',
     },
     {
       id: 2,
@@ -87,9 +87,6 @@ const AsideMenu = () => {
             </a>
           </ul>
         </ul>
-      </div>
-      <div className="p-7 text-2xl font-semibold flex-1 h-screen">
-        <h1>Home Page</h1>
       </div>
     </div>
   );
