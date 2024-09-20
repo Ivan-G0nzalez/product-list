@@ -5,6 +5,7 @@ import { useAuth } from '../adapters/auth/Auth';
 import { App } from '../App';
 import { Logout } from '../ui/components/Logout';
 import { AuthPage } from '../ui/auth/AuthPage';
+import { PrivateRoutes } from './PrivateRoutes';
 
 const { BASE_URL } = import.meta.env;
 
@@ -17,7 +18,10 @@ const AppRoutes: FC = () => {
           <Route path="error/*" element={<ErrorsPage />} />
           <Route path="logout" element={<Logout />} />
           {currentUser ? (
-            <>Hello {currentUser.full_name}</>
+            <>
+              <Route path="/*" element={<PrivateRoutes />} />
+              <Route index element={<Navigate to="/home" />} />
+            </>
           ) : (
             <>
               <Route path="auth/*" element={<AuthPage />} />

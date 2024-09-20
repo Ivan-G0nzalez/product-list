@@ -1,14 +1,14 @@
 import {
-  FC,
   useState,
   useEffect,
   createContext,
   useContext,
   Dispatch,
   SetStateAction,
+  FC,
 } from 'react';
 import { AuthModel, UserModel } from '../../domain/models/Auth';
-import { getAuth, removeAuth } from './AuthHelper';
+import * as authHelper from './AuthHelper';
 import {
   getUserByToken,
   setAuthToken,
@@ -24,7 +24,7 @@ type AuthContextProps = {
 };
 
 const initAuthContextPropsState = {
-  auth: getAuth(),
+  auth: authHelper.getAuth(),
   saveAuth: () => {},
   currentUser: undefined,
   setCurrentUser: () => {},
@@ -38,15 +38,19 @@ const useAuth = () => {
 };
 
 const AuthProvider: FC<WithChildren> = ({ children }) => {
-  const [auth, setAuth] = useState<AuthModel | undefined>(getAuth());
+  const [auth, setAuth] = useState<AuthModel | undefined>(authHelper.getAuth());
+
   const [currentUser, setCurrentUser] = useState<UserModel | undefined>();
+
   const saveAuth = (auth: AuthModel | undefined) => {
     setAuth(auth);
     if (auth) {
-      setAuth(auth);
+      console.log('debe psar si o si');
+      authHelper.setAuth(auth);
+
       setAuthToken(auth.access);
     } else {
-      removeAuth();
+      authHelper.removeAuth();
       setAuthToken(null);
     }
   };
@@ -65,10 +69,11 @@ const AuthProvider: FC<WithChildren> = ({ children }) => {
   );
 };
 
+// Mover la lógica de requestUser fuera del useEffect para SRP
 const requestUser = async (
   apiToken: string,
-  currentUser: any,
-  setCurrentUser: (data: any) => void,
+  currentUser: UserModel | undefined,
+  setCurrentUser: Dispatch<SetStateAction<UserModel | undefined>>,
   logout: () => void
 ) => {
   try {
@@ -90,12 +95,13 @@ const AuthInit: FC<WithChildren> = ({ children }) => {
   const { auth, currentUser, logout, setCurrentUser } = useAuth();
 
   useEffect(() => {
+    console.log('probando');
     if (auth && auth.access) {
       requestUser(auth.access, currentUser, setCurrentUser, logout);
     } else {
-      logout;
+      logout();
     }
-  }, [auth, currentUser]);
+  }, [auth, currentUser, logout, setCurrentUser]);
 
   return <>{children}</>;
 };

@@ -33,7 +33,9 @@ export function Login() {
       setLoading(true);
       try {
         const { data: auth } = await login(values.username, values.password);
+
         saveAuth(auth);
+
         const { data: user } = await getUserByToken(auth.access);
         setCurrentUser(user);
       } catch (error) {

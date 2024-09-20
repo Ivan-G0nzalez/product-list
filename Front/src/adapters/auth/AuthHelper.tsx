@@ -1,7 +1,6 @@
 import { AuthModel } from '../../domain/models/Auth';
 import { decode } from 'base-64';
 import { refreshToken } from '../../services/Auth.services.request';
-import { AxiosInstance } from 'axios';
 
 const decodeToken = (token: string) => {
   try {
@@ -12,7 +11,7 @@ const decodeToken = (token: string) => {
   }
 };
 
-const AUTH_LOCAL_STORAGE_KEY = 'kt-auth-react-v';
+const AUTH_LOCAL_STORAGE_KEY = 'authorization';
 
 const isTokenExpired = (token: string): boolean => {
   const decoded = decodeToken(token);
@@ -47,22 +46,27 @@ const refreshAuthToken = async (): Promise<AuthModel | null> => {
   }
 };
 
-export const getAuth = (): AuthModel | undefined => {
+const getAuth = (): AuthModel | undefined => {
   if (!localStorage) {
+    console.log('No hay localStorage disponible');
     return;
   }
-  const IsValue: string | null = localStorage.getItem(AUTH_LOCAL_STORAGE_KEY);
-  if (!IsValue) {
+
+  const lsValue: string | null = localStorage.getItem(AUTH_LOCAL_STORAGE_KEY);
+
+  if (!lsValue) {
+    console.log('No se encontró el valor en localStorage');
     return;
   }
 
   try {
-    const auth: AuthModel = JSON.parse(IsValue) as AuthModel;
+    const auth: AuthModel = JSON.parse(lsValue) as AuthModel;
     if (auth) {
+      console.log('Se encontró el auth:', auth);
       return auth;
     }
-  } catch (err) {
-    console.error('AUTH LOCAL STORAGE PARSE ERROR', err);
+  } catch (error) {
+    console.error('Error al parsear AUTH_LOCAL_STORAGE:', error);
   }
 };
 
@@ -80,7 +84,7 @@ const setAuth = (auth: AuthModel) => {
   }
 };
 
-export const removeAuth = () => {
+const removeAuth = () => {
   if (!localStorage) {
     return;
   }
@@ -92,23 +96,21 @@ export const removeAuth = () => {
   }
 };
 
-export function setupAxios(axios: AxiosInstance) {
+export function setupAxios(axios: any) {
   axios.defaults.headers.Accept = 'application/json';
   axios.interceptors.request.use(
-    async (config) => {
+    async (config: { headers: { Authorization: string } }) => {
       const auth = getAuth();
       if (auth && auth.access) {
         if (isTokenExpired(auth.access)) {
           const updatedAuth = await refreshAuthToken();
-          if (updatedAuth && config.headers) {
+          if (updatedAuth) {
             config.headers.Authorization = `Bearer ${updatedAuth.access}`;
           } else {
             return Promise.reject('Failed to refresh token');
           }
         } else {
-          if (config.headers) {
-            config.headers.Authorization = `Bearer ${auth.access}`;
-          }
+          config.headers.Authorization = `Bearer ${auth.access}`;
         }
       }
       return config;
@@ -116,3 +118,5 @@ export function setupAxios(axios: AxiosInstance) {
     (err: any) => Promise.reject(err)
   );
 }
+
+export { getAuth, setAuth, removeAuth, AUTH_LOCAL_STORAGE_KEY };
