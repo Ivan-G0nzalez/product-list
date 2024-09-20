@@ -1,6 +1,4 @@
-import { lazy } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
-import { HeaderUserMenu } from '../ui/layouts/headers/menu/HeaderUserMenu';
 import { AsideMenu } from '../ui/layouts/aside/AsideMenu';
 
 export const PrivateRoutes = () => {
